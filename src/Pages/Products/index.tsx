@@ -19,15 +19,20 @@ export const Products = () => {
     setProductData({ ...productData, [event.target.name]: event.target.value });
   };
 
-  const create = async () => {
-    await api
-      .post("/product", productData)
-      .then(() => {
-        toast.success("Produto cadastrado com sucesso");
-        setProductData(new Product());
-        readAll();
-      })
-      .catch((res) => notifyErrors(res));
+  const create = () => {
+    toast.promise(
+      api
+        .post("/product", productData)
+        .then(() => {
+          setProductData(new Product());
+          readAll();
+        })
+        .catch((res) => notifyErrors(res)),
+      {
+        pending: "Cadastrando",
+        success: "Produto cadastrado com sucesso",
+      }
+    );
   };
 
   const readAll = () => {
@@ -35,17 +40,22 @@ export const Products = () => {
   };
 
   const deleteProduct = (id: number) => {
-    api
-      .delete("/product", {
-        params: {
-          id,
-        },
-      })
-      .then(() => {
-        toast.success("Produto removido com sucesso");
-        readAll();
-      })
-      .catch(() => toast.error("Erro ao tentar remover o produto"));
+    toast.promise(
+      api
+        .delete("/product", {
+          params: {
+            id,
+          },
+        })
+        .then(() => {
+          readAll();
+        }),
+      {
+        pending: "Removendo...",
+        error: "Erro ao tentar remover o produto",
+        success: "Produto removido com sucesso",
+      }
+    );
   };
 
   const update = (id: number) => {
@@ -57,15 +67,23 @@ export const Products = () => {
   };
 
   const saveUpdate = () => {
-    api
-      .put("/product", productData)
-      .then(() => {
-        toast.success("Produto alterado com sucesso");
+    toast.promise(
+      api.put("/product", productData).then(() => {
         setEditing(false);
         setProductData(new Product());
         readAll();
-      })
-      .catch(() => toast.error("Erro ao tentar alterar o produto"));
+      }),
+      {
+        success: "Produto alterado com sucesso",
+        error: "Erro ao tentar alterar o produto",
+        pending: "Alterando...",
+      }
+    );
+  };
+
+  const cancelUpdate = () => {
+    setEditing(false);
+    setProductData(new Product());
   };
 
   useEffect(() => readAll(), []);
@@ -113,8 +131,11 @@ export const Products = () => {
             min={0}
           />
         </div>
-        <div className="mt-2">
+        <div className="mt-2 flex gap-2">
           <Button label="Salvar" onClick={editing ? saveUpdate : create} />
+          {editing && (
+            <Button label="Cancelar" style="secondary" onClick={cancelUpdate} />
+          )}
         </div>
       </Container>
       <Container title="Produtos cadastrados">

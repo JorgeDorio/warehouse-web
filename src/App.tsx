@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 export const App = () => {
   return (
     <BrowserRouter>
-      <ToastContainer position="bottom-right" />
+      <ToastContainer position="bottom-right" hideProgressBar/>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route path="/produtos" element={<Products />} />
