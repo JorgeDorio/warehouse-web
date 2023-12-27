@@ -7,6 +7,9 @@ interface TextInputProps {
   name: string;
   type?: HTMLInputTypeAttribute;
   min?: number;
+  maxLength?: number;
+  maskPattern?: RegExp;
+  maskPosition?: string;
 }
 
 export const TextInput = ({
@@ -15,9 +18,29 @@ export const TextInput = ({
   onChange,
   name,
   min,
+  maxLength,
   type = "text",
+  maskPattern,
+  maskPosition = "",
 }: TextInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const maskedValue = maskPattern
+      ? applyMask(event.target.value, maskPattern, maskPosition)
+      : event.target.value;
+    event.target.value = maskedValue;
+
+    onChange(event);
+  };
+
+  const applyMask = (
+    value: string,
+    maskPattern: RegExp,
+    maskPosition: string
+  ) => {
+    return value.replace(/\D/g, "").replace(maskPattern, maskPosition);
+  };
 
   return (
     <div className="relative mt-2">
@@ -25,12 +48,13 @@ export const TextInput = ({
         type={type}
         id={name}
         value={value}
-        onChange={(e) => onChange(e)}
+        onChange={handleChange} // Use handleChange to apply the mask
         className="border outline-none border-blue-200 p-2 rounded-md focus:border-blue-800"
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         name={name}
         min={min}
+        maxLength={maxLength}
       />
       <label
         htmlFor={name}

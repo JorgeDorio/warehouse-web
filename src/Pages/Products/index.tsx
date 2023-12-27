@@ -36,7 +36,13 @@ export const Products = () => {
   };
 
   const readAll = () => {
-    api.get("/product").then((res) => setDataTable(res.data));
+    toast.promise(
+      api.get("/product").then((res) => setDataTable(res.data)),
+      {
+        pending: "Carregando informações...",
+        error: "Erro ao carregar informações",
+      }
+    );
   };
 
   const deleteProduct = (id: number) => {
